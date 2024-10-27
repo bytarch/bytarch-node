@@ -1,0 +1,30 @@
+{
+  "name": "@bytarch/ai",
+  "version": "1.0.0",
+  "type": "commonjs",  
+  "description": "The official javascript library for the BytArch API",
+  "main": "lib/index.js",
+  "scripts": {
+    "testModels": "node test/testDisplay.js",
+    "imageGeneration": "node test/imageGeneration.js",
+    "chatGeneration": "node test/chatCompletion.js",
+    "chatStreaming": "node test/chatStreaming.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bytarch/bytarch-node.git"
+  },
+  "keywords": [
+    "AI",
+    "bytarch"
+  ],
+  "author": "BytArch <bytarchbit@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bytarch/bytarch-node/issues"
+  },
+  "homepage": "https://github.com/bytarch/bytarch-node#readme",
+  "dependencies": {
+    "node-fetch": "^3.3.2"
+  }
+}
