@@ -102,47 +102,69 @@ try {
     console.error(error.message);
 }
 ```
+### Streaming Chat Completions
 
-#### Streaming Chat Completions
+The `BytArch` library allows developers to interact with the BytArch API to generate AI-powered chat completions, and this guide will walk through streaming responses from the API for dynamic, real-time outputs.
+
+#### Setting Up the Client
+
+To start, initialize the `BytArch` client with your API key. This key authenticates your application with the BytArch API, giving you access to all available models and endpoints. 
 
 ```javascript
 import { BytArch } from '@bytarch/ai'; 
 
 const client = new BytArch({ apiKey: 'BytArch_API_KEY' });
+```
 
-try {
-    const stream = await client.chat.completions.create({
-        model: "byt-gpt-4o",
-        messages: [{ role: 'user', content: 'Say this is a test' }],
-        stream: true,
-    });
+Replace `'BytArch_API_KEY'` with your actual API key to allow the client to connect securely to the BytArch API.
 
-    for await (const chunk of stream) {
-        console.log(chunk.choices[0]?.delta?.content || ''); 
-    }
+#### Creating a Chat Completion Stream
+
+To request a chat completion, call `client.chat.completions.create` and pass in your configuration options. Here, we specify:
+- **model**: `"byt-gpt-4o"` – The model name you’d like to use for generating responses. This model ID should align with the models offered by BytArch.
+- **messages**: An array of messages to initiate the chat. The example message includes one message from a user with the prompt, "Say this is a test."
+- **stream**: Set to `true` to enable streaming responses. This tells the API to return the output in chunks as it generates content.
+
+Here’s how you make this request:
+
+```javascript
+const stream = await client.chat.completions.create({
+    model: "byt-gpt-4o",
+    messages: [{ role: 'user', content: 'Say this is a test' }],
+    stream: true,
+});
+```
+
+#### Handling the Streamed Response
+
+Streaming allows you to process and display the response in real-time, making it ideal for applications where immediate feedback is important, such as chatbots or real-time transcription services.
+
+1. **Loop through the Stream**: The `for await...of` loop iterates through each chunk of data as it's streamed from the API. Each chunk is a partial response, enabling you to display content progressively.
+  
+2. **Access Content in Each Chunk**: Within each iteration, `chunk.choices[0]?.delta?.content` extracts the response text from the streamed data. The `delta` object contains the latest content segment provided by the model.
+  
+3. **Display Content**: Each chunk is then logged to the console, or it can be used in a UI component to render partial responses as they arrive.
+
+Here’s the full implementation:
+
+```javascript
+for await (const chunk of stream) {
+    console.log(chunk.choices[0]?.delta?.content || ''); 
+}
+```
+
+#### Error Handling
+
+If the API request fails or an error occurs during streaming, it’s essential to handle it gracefully. The `try...catch` block ensures that any issues with the streaming connection or API response are caught and logged:
+
+```javascript
 } catch (error) {
     console.error('Error streaming chat completion:', error);
 }
 ```
 
-#### Fetching Chat Completions
+By managing errors, you ensure a robust implementation that can alert users to issues without disrupting the overall application experience.
 
-```javascript
-import { BytArch } from '@bytarch/ai'; 
-
-const client = new BytArch({ apiKey: 'BytArch_API_KEY' });
-
-try {
-    const chatCompletion = await client.chat.completions.create({
-        messages: [{ role: 'user', content: 'Say this is a test' }],
-        model: "byt-gpt-4o",
-    });
-    console.log('Chat Completion:', chatCompletion.choices[0].message.content); 
-} catch (error) {
-    console.error('Error fetching chat completion:', error);
-}
-
-```
 
 #### Displaying Available Models
 
