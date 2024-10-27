@@ -25,7 +25,7 @@ To get started, you need to import the `BytArch` class and create an instance by
 ```javascript
 import { BytArch } from '@bytarch/ai';
 
-const client = new BytArch({ apiKey: 'your-api-key-here' });
+const client = new BytArch({ apiKey: 'BytArch_API_KEY' });
 ```
 
 ## Generating Images
@@ -39,7 +39,7 @@ You can generate images by calling the `generate` method on the `image` property
 ```javascript
 import { BytArch } from '@bytarch/ai'; 
 
-const client = new BytArch({ apiKey: 'your-api-key-here' });
+const client = new BytArch({ apiKey: 'BytArch_API_KEY' });
 
 try {
     const styles = [
@@ -108,7 +108,7 @@ try {
 ```javascript
 import { BytArch } from '@bytarch/ai'; 
 
-const client = new BytArch({ apiKey: 'your-api-key-here' });
+const client = new BytArch({ apiKey: 'BytArch_API_KEY' });
 
 try {
     const stream = await client.chat.completions.create({
@@ -130,7 +130,7 @@ try {
 ```javascript
 import { BytArch } from '@bytarch/ai'; 
 
-const client = new BytArch({ apiKey: 'your-api-key-here' });
+const client = new BytArch({ apiKey: 'BytArch_API_KEY' });
 
 try {
     const chatCompletion = await client.chat.completions.create({
