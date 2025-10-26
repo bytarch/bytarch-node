@@ -1,6 +1,6 @@
 {
   "name": "@bytarch/ai",
-  "version": "1.0.0",
+  "version": "1.0.67",
   "type": "module",
   "description": "The official javascript library for the BytArch API",
   "main": "lib/index.js",
