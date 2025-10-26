@@ -4,11 +4,13 @@
 The official javascript library for the BytArch API
 ## Features
 
-- Generate images using different artistic styles such as Realism, Anime, 3D, Disney, and more.
-- Stream chat completions in real-time.
-- Fetch chat completions for a given message.
-- Save generated images to a specified file, retrieve them as a Buffer, or obtain a URL to the generated image.
-- User-friendly API that simplifies the image generation process.
+- Fetch and display available AI models from the BytArch API.
+- Filter models to show only free models or Sky extension models.
+- Generate AI-powered chat completions and stream responses in real-time.
+- Upload files (images, documents) to the BytArch platform.
+- List uploaded media files.
+- Access public uploads, chats, and retrieve items by ID.
+- Simple and intuitive API for interacting with BytArch services.
 
 ## Installation
 
@@ -27,169 +29,128 @@ import { BytArch } from '@bytarch/ai';
 
 const client = new BytArch({ apiKey: 'BytArch_API_KEY' });
 ```
+## AI Chat Completions
 
-## Generating Images
+The `BytArch` library provides access to AI-powered chat completions through an OpenAI-compatible interface.
 
-You can generate images by calling the `generate` method on the `image` property of the `client` instance. Below are examples demonstrating how to generate images in various art styles.
-
-### Example Code
-
-#### Image Generation with Different Styles
+### Non-Streaming Chat Completion
 
 ```javascript
-import { BytArch } from '@bytarch/ai'; 
+import { BytArch } from '@bytarch/ai';
 
 const client = new BytArch({ apiKey: 'BytArch_API_KEY' });
 
 try {
-    const styles = [
-        {
-            model: 'img-flux-realism',
-            prompt: 'Create an image of a serene landscape.'
-        },
-        {
-            model: 'img-flux-anime',
-            prompt: 'Create a vibrant anime-style character in a fantasy setting.'
-        },
-        {
-            model: 'img-flux',
-            prompt: 'Create a modern abstract piece of art.'
-        },
-        {
-            model: 'img-flux-3d',
-            prompt: 'Create a 3D render of a futuristic city.'
-        },
-        {
-            model: 'img-flux-disney',
-            prompt: 'Create a whimsical scene with a magical castle and fairies.'
-        },
-        {
-            model: 'img-flux-pixel',
-            prompt: 'Create a pixel art scene of a retro video game world.'
-        },
-        {
-            model: 'img-flux-4o',
-            prompt: 'Create an artistic interpretation with a unique 4O flair.'
-        },
-        {
-            model: 'img-any-dark',
-            prompt: 'Create a dark-themed image of a haunted forest.'
-        }
-    ];
-
-    for (const { model, prompt } of styles) {
-        const saveResult = await client.image.generate({
-            model: model,
-            prompt: prompt,
-            saveToFile: `output/${model.split('-')[2]}_image.png`,
-        });
-        console.log(saveResult);
-
-        const bufferResult = await client.image.generate({
-            model: model,
-            prompt: prompt,
-            returnBuffer: true,
-        });
-        console.log(bufferResult);
-
-        const urlResult = await client.image.generate({
-            model: model,
-            prompt: prompt,
-        });
-        console.log(urlResult);
-    }
+    const chatCompletion = await client.chat.completions.create({
+        messages: [{ role: 'user', content: 'Say this is a test' }],
+        model: "phind-405b",
+    });
+    console.log('Chat Completion:', chatCompletion.choices[0].message.content);
 } catch (error) {
-    console.error(error.message);
+    console.error('Error fetching chat completion:', error);
 }
 ```
+
 ### Streaming Chat Completions
 
-The `BytArch` library allows developers to interact with the BytArch API to generate AI-powered chat completions, and this guide will walk through streaming responses from the API for dynamic, real-time outputs.
-
-#### Setting Up the Client
-
-To start, initialize the `BytArch` client with your API key. This key authenticates your application with the BytArch API, giving you access to all available models and endpoints. 
-
 ```javascript
-import { BytArch } from '@bytarch/ai'; 
+import { BytArch } from '@bytarch/ai';
 
 const client = new BytArch({ apiKey: 'BytArch_API_KEY' });
-```
 
-Replace `'BytArch_API_KEY'` with your actual API key to allow the client to connect securely to the BytArch API.
+try {
+    const stream = await client.chat.completions.create({
+        model: "phind-405b",
+        messages: [{ role: 'user', content: 'Say this is a test' }],
+        stream: true,
+    });
 
-#### Creating a Chat Completion Stream
-
-To request a chat completion, call `client.chat.completions.create` and pass in your configuration options. Here, we specify:
-- **model**: `"byt-gpt-4o"` – The model name you’d like to use for generating responses. This model ID should align with the models offered by BytArch.
-- **messages**: An array of messages to initiate the chat. The example message includes one message from a user with the prompt, "Say this is a test."
-- **stream**: Set to `true` to enable streaming responses. This tells the API to return the output in chunks as it generates content.
-
-Here’s how you make this request:
-
-```javascript
-const stream = await client.chat.completions.create({
-    model: "byt-gpt-4o",
-    messages: [{ role: 'user', content: 'Say this is a test' }],
-    stream: true,
-});
-```
-
-#### Handling the Streamed Response
-
-Streaming allows you to process and display the response in real-time, making it ideal for applications where immediate feedback is important, such as chatbots or real-time transcription services.
-
-1. **Loop through the Stream**: The `for await...of` loop iterates through each chunk of data as it's streamed from the API. Each chunk is a partial response, enabling you to display content progressively.
-  
-2. **Access Content in Each Chunk**: Within each iteration, `chunk.choices[0]?.delta?.content` extracts the response text from the streamed data. The `delta` object contains the latest content segment provided by the model.
-  
-3. **Display Content**: Each chunk is then logged to the console, or it can be used in a UI component to render partial responses as they arrive.
-
-Here’s the full implementation:
-
-```javascript
-for await (const chunk of stream) {
-    console.log(chunk.choices[0]?.delta?.content || ''); 
-}
-```
-
-#### Error Handling
-
-If the API request fails or an error occurs during streaming, it’s essential to handle it gracefully. The `try...catch` block ensures that any issues with the streaming connection or API response are caught and logged:
-
-```javascript
+    for await (const chunk of stream) {
+        process.stdout.write(chunk.choices[0]?.delta?.content || '');
+    }
+    console.log(); // Add newline after streaming
 } catch (error) {
     console.error('Error streaming chat completion:', error);
 }
 ```
 
-By managing errors, you ensure a robust implementation that can alert users to issues without disrupting the overall application experience.
-
-
-#### Displaying Available Models
+## Displaying Available Models
 
 ```javascript
-import { displayModels } from '@bytarch/ai'; 
+import { displayModels } from '@bytarch/ai';
 
-console.log("Fetching models...");
+console.log("Fetching all models...");
+const allModels = await displayModels();
+console.log(`Total models: ${allModels?.data?.length || 0}`);
 
-const models = await displayModels();
-console.log(models);
+console.log("\nFetching free models only...");
+const freeModels = await displayModels({ free: true });
+console.log(`Free models: ${freeModels?.data?.length || 0}`);
+
+console.log("\nFetching Sky models...");
+const skyModels = await displayModels({ sky: true });
+console.log(`Sky extension models: ${skyModels?.data?.length || 0}`);
 ```
 
-## Parameters
+## File Uploads
 
-- **model**: The model to use for image generation (e.g., `img-flux-realism`).
-- **prompt**: A string describing the image you want to generate.
-- **saveToFile**: (Optional) A string specifying the file path to save the generated image.
-- **returnBuffer**: (Optional) A boolean indicating if you want the image returned as a Buffer.
+Upload files to the BytArch platform:
+
+```javascript
+import { BytArch } from '@bytarch/ai';
+
+const client = new BytArch({ apiKey: 'BytArch_API_KEY' });
+
+// Upload a file from path
+const uploadResult = await client.uploads.create('/path/to/your/file.jpg');
+console.log('Upload result:', uploadResult);
+
+// Upload a Buffer
+const fs = await import('fs');
+const fileBuffer = fs.readFileSync('/path/to/your/file.jpg');
+const bufferUpload = await client.uploads.create(fileBuffer, { fileName: 'my-image.jpg' });
+
+// List uploaded files
+const uploads = await client.uploads.list();
+console.log('Uploaded files:', uploads);
+```
+
+## Public API Access
+
+Access public content without authentication:
+
+```javascript
+import { BytArch } from '@bytarch/ai';
+
+const publicClient = new BytArch().public; // No API key needed for public access
+
+// List public uploads
+const publicUploads = await publicClient.listUploads();
+console.log('Public uploads:', publicUploads);
+
+// List public chats
+const publicChats = await publicClient.listChats();
+console.log('Public chats:', publicChats);
+
+// Get specific item by ID
+const item = await publicClient.getById('some-id');
+console.log('Public item:', item);
+```
 
 ## Error Handling
 
 The library throws errors when:
-- An invalid API key is provided.
-- The model name does not match the required format.
-- Image generation fails due to API issues.
+- An invalid API key format is provided (must be valid UUID).
+- Network requests fail.
+- File uploads are invalid.
+
+## Available Scripts
+
+The package.json includes several scripts for testing different functionalities:
+
+- `npm run models` - Test displaying available models
+- `npm run chat` - Test chat completion
+- `npm run stream` - Test streaming chat completion
 
 ## Contributing
 
@@ -197,15 +158,8 @@ Contributions are welcome! If you would like to enhance this project, please sub
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the ISC License. See the [LICENSE](LICENSE) file for details.
 
 ## Contact
 
 For any questions or support, please reach out to the project maintainers.
-```
-
-### Final Notes
-
-- Remember to adjust the API key placeholder and any specific details you feel necessary to include based on your project requirements.
-- Ensure that the `output` directory exists for saving images before running the examples.
-- Customize any sections based on additional features or preferences you might want to highlight.
